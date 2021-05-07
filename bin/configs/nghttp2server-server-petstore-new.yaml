@@ -1,0 +1,6 @@
+generatorName: nghttp2server
+outputDir: samples/server/petstore/nghttp2server
+inputSpec: modules/openapi-generator/src/test/resources/3_0/petstore.yaml
+templateDir: modules/openapi-generator/src/main/resources/nghttp2server
+additionalProperties:
+  hideGenerationTimestamp: "true"

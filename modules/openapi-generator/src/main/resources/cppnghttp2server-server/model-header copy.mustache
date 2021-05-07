@@ -1,0 +1,154 @@
+{{>licenseInfo}}
+{{#models}}{{#model}}/*
+ * {{classname}}.h
+ *
+ * {{description}}
+ */
+
+#ifndef {{classname}}_H_
+#define {{classname}}_H_
+
+{{{defaultInclude}}}
+{{#imports}}{{{this}}}
+{{/imports}}
+#include "jsonParser/jsonParser.hpp"
+#include <type_traits>
+	
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+
+
+    {{#isEnum}}{{#allowableValues}}
+    enum class e{{classname}} {
+        // To have a valid default value.
+        // Avoiding nameclashes with user defined
+        // enum values
+        INVALID_VALUE_OPENAPI_GENERATED = 0,
+        {{#enumVars}}
+        {{{name}}}{{^-last}}, {{/-last}}
+        {{/enumVars}}
+    };{{/allowableValues}}{{/isEnum}}
+
+
+/// <summary>
+/// {{description}}
+/// </summary>
+class {{declspec}} {{classname}}: public jsonParser::jsonParser<{{classname}}>
+{
+public:
+    explicit {{classname}}(){
+        // constructor
+        {{#vars}}{{^isContainer}}{{#isPrimitiveType}}m_{{name}} = {{{defaultValue}}};
+        {{/isPrimitiveType}}{{^isPrimitiveType}}{{#isString}}m_{{name}} = {{{defaultValue}}};
+        {{/isString}}{{#isDateTime}}m_{{name}} = {{{defaultValue}}};
+        {{/isDateTime}}{{/isPrimitiveType}}{{/isContainer}}
+        {{#required}}   
+            m_{{name}}Flag = staticjson::Flags::Default;
+        {{/required}}
+        {{^required}}     
+            m_{{name}}Flag = (staticjson::Flags::Optional);
+        {{/required}}
+        {{/vars}}
+    };
+    virtual ~{{classname}}(){};
+
+  
+
+    void staticjson_init(staticjson::ObjectHandler *h)
+    {
+
+        // static json settings members vars : {{#vars}}{{{name}}} {{/vars}}
+        {{#vars}}
+        h->add_property("{{nameInCamelCase}}", &this->m_{{name}}, m_{{name}}Flag);
+        {{/vars}}
+
+        {{#isEnum}}
+        h->add_property("{{classname}}", (std::underlying_type<e{{classname}}>::type*)(&this->m_value), staticjson::Flags::Default);
+        {{/isEnum}}
+
+        h->set_flags(staticjson::Flags::Default | staticjson::Flags::DisallowUnknownKey);
+    }
+    template<typename T>
+    static std::string convert2string(std::string name ,const std::vector<T>& obj){
+         std::stringstream o;
+         o << "name : ";
+            for(auto it : obj)
+            {
+                o<< it;
+            }
+            o<<std::endl;
+
+            return o.str();
+
+    }
+
+    template<typename T, typename T1>
+    static std::string convert2string(std::string name ,const std::map<T,T1>& obj){
+        std::stringstream out;
+            out<<"name : ";
+            for(auto it : obj)
+            {
+                out<< it.first<<":"<<it.second<<" ";
+            }
+            out<<std::endl;
+            return out.str();
+
+    }
+
+    friend std::ostream& operator<<(std::ostream& o, const {{classname}}& obj)
+    {
+        {{#vars}}{{^isContainer}}
+        o << "{{name}} : " << obj.m_{{name}} << std::endl;
+       {{/isContainer}}
+       {{#isContainer}}
+        o<< convert2string(std::string("{{name}}"), obj.m_{{name}}) <<std::endl;
+       {{/isContainer}}{{/vars}}
+        {{#isEnum}}
+        o << "{{classname}} : " << static_cast<std::underlying_type<e{{classname}}>::type>(obj.m_value)<< std::endl;
+        {{/isEnum}}
+        return o;
+    }
+
+    /////////////////////////////////////////////
+    /// {{classname}} members vars : {{#vars}}{{{name}}} {{/vars}}
+
+    {{#vars}}{{{dataType}}}{{#isContainer}}&{{/isContainer}}  {{getter}}(){{^isContainer}} const{{/isContainer}}
+    {
+        return m_{{name}};
+    }
+    void  {{setter}}({{{dataType}}} const{{^isPrimitiveType}}&{{/isPrimitiveType}} value)
+    {
+        m_{{name}} = value;
+    }
+
+    {{/vars}}
+    {{#isEnum}} e{{classname}}  getValue() const
+    {
+        return m_value;
+    }
+    void setValue(e{{classname}} value)
+    {
+        m_value = value;
+    }{{/isEnum}}
+
+    
+public:
+    {{#vars}}
+    {{{dataType}}} m_{{name}};
+    
+    unsigned m_{{name}}Flag;
+    {{/vars}}
+    {{#isEnum}}
+
+    e{{classname}} m_value = e{{classname}}::INVALID_VALUE_OPENAPI_GENERATED;
+    {{/isEnum}}
+};
+
+{{#modelNamespaceDeclarations}}
+}
+{{/modelNamespaceDeclarations}}
+
+#endif /* {{classname}}_H_ */
+{{/model}}
+{{/models}}

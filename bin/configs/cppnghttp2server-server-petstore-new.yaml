@@ -1,0 +1,6 @@
+generatorName: cppnghttp2server
+outputDir: samples/server/petstore/cppnghttp2server
+inputSpec: modules/openapi-generator/src/test/resources/3_0/petstore.yaml
+templateDir: modules/openapi-generator/src/main/resources/cppnghttp2server
+additionalProperties:
+  hideGenerationTimestamp: "true"

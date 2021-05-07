@@ -1,0 +1,55 @@
+{{>licenseInfo}}
+{{#operations}}/*
+ * {{classname}}.h
+ *
+ * {{description}}
+ */
+
+#ifndef {{classname}}_H_
+#define {{classname}}_H_
+
+{{{defaultInclude}}}
+#include "jsonParser.hpp"
+
+#include <nghttp2/asio_http2_server.h>
+
+
+
+#include "{{classname}}Impl.h"
+
+using namespace nghttp2::asio_http2::server;
+
+
+
+
+{{#imports}}{{{import}}}
+{{/imports}}
+
+{{#apiNamespaceDeclarations}}
+namespace {{this}} {
+{{/apiNamespaceDeclarations}}
+
+{{#hasModelImport}}
+using namespace {{modelNamespace}};{{/hasModelImport}}
+
+class {{declspec}} {{classname}} {
+public:
+    {{classname}}();
+    virtual ~{{classname}}() {}
+ 
+
+    {{#operation}}
+    static void {{operationIdSnakeCase}}_handler(request &requestIn,  response& responseIn);
+      {{/operation}}
+   
+ 
+
+};
+
+{{#apiNamespaceDeclarations}}
+}
+{{/apiNamespaceDeclarations}}
+
+#endif /* {{classname}}_H_ */
+
+{{/operations}}

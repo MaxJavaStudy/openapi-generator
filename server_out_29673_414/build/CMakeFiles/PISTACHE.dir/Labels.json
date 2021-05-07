@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/CMakeFiles/PISTACHE"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/CMakeFiles/PISTACHE.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/CMakeFiles/PISTACHE-complete.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/PISTACHE-prefix/src/PISTACHE-stamp/PISTACHE-install.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/PISTACHE-prefix/src/PISTACHE-stamp/PISTACHE-mkdir.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/PISTACHE-prefix/src/PISTACHE-stamp/PISTACHE-download.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/PISTACHE-prefix/src/PISTACHE-stamp/PISTACHE-update.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/PISTACHE-prefix/src/PISTACHE-stamp/PISTACHE-patch.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/PISTACHE-prefix/src/PISTACHE-stamp/PISTACHE-configure.rule"
+		},
+		{
+			"file" : "/root/openapi-generator/server_out_29673_414/build/PISTACHE-prefix/src/PISTACHE-stamp/PISTACHE-build.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"PISTACHE"
+		],
+		"name" : "PISTACHE"
+	}
+}

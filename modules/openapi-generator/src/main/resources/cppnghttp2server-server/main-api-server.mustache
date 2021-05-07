@@ -1,0 +1,116 @@
+{{>licenseInfo}}
+
+
+#include <vector>
+#include <signal.h>
+#include <unistd.h>
+#include "jsonParser.hpp"
+#include <nghttp2/asio_http2_server.h>
+#include <nghttp2/http_router.hpp>
+{{#apiInfo}}{{#apis}}{{#operations}}
+#include "{{classname}}.h"{{/operations}}{{/apis}}{{/apiInfo}}
+
+   {{#models}}{{#model}}
+#include "{{classname}}.h"
+    {{/model}}
+    {{/models}}
+
+#include <nghttp2/asio_http2_server.h>
+static void sigHandler [[noreturn]] (int sig){
+    switch(sig){
+        case SIGINT:
+        case SIGQUIT:
+        case SIGTERM:
+        case SIGHUP:
+        default:
+            // to do 
+            // what should we do when signal happens?
+            break;
+    }
+    exit(0);
+}
+
+static void setUpUnixSignals(std::vector<int> quitSignals) {
+    sigset_t blocking_mask;
+    sigemptyset(&blocking_mask);
+    for (auto sig : quitSignals)
+        sigaddset(&blocking_mask, sig);
+
+    struct sigaction sa;
+    sa.sa_handler = sigHandler;
+    sa.sa_mask    = blocking_mask;
+    sa.sa_flags   = 0;
+
+    for (auto sig : quitSignals)
+        sigaction(sig, &sa, nullptr);
+}
+
+
+using namespace {{apiNamespace}};
+
+int main(int argc, char *argv[]) {
+
+    std::vector<int> sigs{SIGQUIT, SIGINT, SIGTERM, SIGHUP};
+    setUpUnixSignals(sigs);
+
+
+// server
+ try {
+    // Check command line arguments.
+    if (argc < 4) {
+      std::cerr
+          << "Usage: asio-sv <address> <port> <threads> [<private-key-file> "
+          << "<cert-file>]\n";
+      return 1;
+    }
+
+    boost::system::error_code ec;
+
+    std::string addr = argv[1];
+    std::string port =  {{#serverPort}}{{serverPort}}{{/serverPort}}{{^serverPort}}argv[2]{{/serverPort}} ;
+    std::size_t num_threads = std::stoi(argv[3]);
+
+    std::cout<<"start server with addr :"<<addr<<", port : "<<port<<", thread mumber :"<<num_threads<<std::endl;
+
+    http2 server;
+
+    server.num_threads(num_threads);
+    
+    // load API schema
+    static std::string apiSchemaBasePath= "";
+
+    {{#models}}{{#model}}
+    jsonParser::jsonParser<{{classname}}>::loadApiSchema(apiSchemaBasePath+"{{classname}}.json");
+    {{/model}}
+    {{/models}}
+
+    // register server handler
+    {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+    server.register_handler<{{httpMethod}}>("{{{vendorExtensions.x-codegen-nghttp2-path}}}", &{{classname}}::{{operationIdSnakeCase}}_handler);
+    {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+
+    // ssl? server start
+    if (argc >= 6) {
+      boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
+      tls.use_private_key_file(argv[4], boost::asio::ssl::context::pem);
+      tls.use_certificate_chain_file(argv[5]);
+
+      configure_tls_context_easy(ec, tls);
+
+      if (server.listen_and_serve(ec, tls, addr, port)) {
+        std::cerr << "error: " << ec.message() << std::endl;
+      }
+    } else {
+      if (server.listen_and_serve(ec, addr, port)) {
+        std::cerr << "error: " << ec.message() << std::endl;
+      }
+    }
+  } catch (std::exception &e) {
+    std::cerr << "exception: " << e.what() << "\n";
+  }
+
+  return 0;
+
+}
+
+

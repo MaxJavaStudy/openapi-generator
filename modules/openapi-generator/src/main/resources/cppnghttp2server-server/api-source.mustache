@@ -5,20 +5,13 @@
  * {{description}}
  */
 
-
 {{{defaultInclude}}}
-#include "jsonParser.hpp"
 
 #include <nghttp2/asio_http2_server.h>
-
-
-
 #include "{{classname}}.h"
-#include "{{classname}}Impl.h"
 
 using namespace nghttp2::asio_http2::server;
 using namespace nghttp2::asio_http2;
-
 
 {{#imports}}{{{import}}}
 {{/imports}}
@@ -30,83 +23,70 @@ namespace {{this}} {
 {{#hasModelImport}}
 using namespace {{modelNamespace}};{{/hasModelImport}}
 
-
- 
-
-    {{#operation}}
-    void {{classname}}::{{operationIdSnakeCase}}_handler(request &requestIn,  response& responseIn)
-    {
-           {{#hasPathParams}}
+{{#operation}}
+  void {{classname}}::{{operationIdSnakeCase}}_handler(request &requestIn,  response& responseIn)
+  {
+  {{#hasPathParams}}
     // Getting the path params
     {{#pathParams}}
-    //  //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+    // <param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
     // openAPI type: {{#isNumeric}}number {{/isNumeric}}  {{#isInteger}}int {{/isInteger}}{{#isString}}string{{/isString}}
     {{dataType}} {{paramName}};
-
     if(requestIn.param().count("{{paramName}}"))
     {
-    {{^isContainer}}
-    {{#isPrimitiveType}}
-
-      
-      // to do : more rainy day consider?
-      {{#isInteger}}
-      // it is integer
-         {{paramName}} = std::stoi(requestIn.param()["{{paramName}}"]);
-      {{/isInteger}}
-      {{#isLong}}
-      // it is long
-       {{paramName}} = std::stol(requestIn.param()["{{paramName}}"]);
-      {{/isLong}}
-
-    {{#isFloat}}
-    // it is float
-       {{paramName}} = std::stof(requestIn.param()["{{paramName}}"]);
-      {{/isFloat}}
-
-
-          {{#isDouble}}
-          // it is double
-       {{paramName}} = std::stod(requestIn.param()["{{paramName}}"]);
-      {{/isDouble}}
-
-   
-  
-    
-
-      {{#isString}}
-      // it is string
+      {{^isContainer}}
+      {{#isPrimitiveType}}
+        // to do : more rainy day consider?
+        {{#isInteger}}
+        // it is integer
+        {{paramName}} = std::stoi(requestIn.param()["{{paramName}}"]);
+        {{/isInteger}}
+        {{#isLong}}
+        // it is long
+        {{paramName}} = std::stol(requestIn.param()["{{paramName}}"]);
+        {{/isLong}}
+        {{#isFloat}}
+        // it is float
+        {{paramName}} = std::stof(requestIn.param()["{{paramName}}"]);
+        {{/isFloat}}
+        {{#isDouble}}
+        // it is double
+        {{paramName}} = std::stod(requestIn.param()["{{paramName}}"]);
+        {{/isDouble}}
+        {{#isString}}
+        // it is string
         {{paramName}} = requestIn.param()["{{paramName}}"];
-       {{/isString}}
- {{/isPrimitiveType}}
- {{/isContainer}}
-  
-
+        {{/isString}}
+      {{/isPrimitiveType}}
+      {{/isContainer}}
     }
     {{/pathParams}}
-    {{/hasPathParams}}
+  {{/hasPathParams}}
     
-    {{#hasBodyParam}}
-
-     
-    
+  {{#hasBodyParam}}
     {{#bodyParam}}
-
     // Getting the body param
     // {{#isContainer}}container{{/isContainer}} {{#isPrimitiveType}}PrimitiveType{{/isPrimitiveType}} {{#isArray}}array{{/isArray}} {{#isMap}}map{{/isMap}}
-//<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+    // <param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
 
-    {{^isPrimitiveType}}{{^isContainer}}
-    {{baseType}} {{paramName}};{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}> {{paramName}};{{/isArray}}{{#isMap}}std::map<std::string, {{items.baseType}}> {{paramName}};{{/isMap}}{{/isPrimitiveType}}
+    {{^isPrimitiveType}}
+      {{^isContainer}}
+        {{baseType}} {{paramName}};
+      {{/isContainer}}
+      {{#isArray}}
+        std::vector<{{items.baseType}}> {{paramName}};
+      {{/isArray}}
+      {{#isMap}}
+        std::map<std::string, {{items.baseType}}> {{paramName}};
+      {{/isMap}}
+    {{/isPrimitiveType}}
     {{#isPrimitiveType}}
-    {{dataType}} {{paramName}};
-
+      {{dataType}} {{paramName}};
     {{/isPrimitiveType}}
     {{/bodyParam}}
-    {{/hasBodyParam}}
-    
-    
-    {{#hasQueryParams}}
+  {{/hasBodyParam}}
+
+  {{#hasQueryParams}}
     // Getting the query params
     std::map<std::string, std::string> queryMap;
     if(!requestIn.uri().raw_query.empty())
@@ -121,134 +101,120 @@ using namespace {{modelNamespace}};{{/hasModelImport}}
     if(queryMap.count("{{baseName}}")){
      {{paramName}}Query=(queryMap).at("{{baseName}}");
     }
-   {{^required}}  std::optional<{{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}>{{/required}} {{#required}}  {{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}{{/required}}  {{paramName}};
-
+    {{^required}}  std::optional<{{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}>{{/required}} {{#required}}  {{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}{{/required}}  {{paramName}};
 
     //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
   
     {{#isPrimitiveType}}
     // PrimitiveType
- if(!{{paramName}}Query.empty()){
-      {{^required}}
-      {{paramName}}.emplace({{paramName}}Query);
-      {{/required}}
-      {{#required}}
-      {{paramName}} = {{paramName}}Query;
-      {{/required}}
-    }
+      if(!{{paramName}}Query.empty()){
+        {{^required}}
+        {{paramName}}.emplace({{paramName}}Query);
+        {{/required}}
+        {{#required}}
+        {{paramName}} = {{paramName}}Query;
+        {{/required}}
+      }
     {{/isPrimitiveType}}
-  {{^isPrimitiveType}}
+    {{^isPrimitiveType}}
     {{#isEnum}}
     // enum type
-       if(!{{paramName}}Query.empty()){
+      if(!{{paramName}}Query.empty()){
+        {{^required}}
+        {{paramName}}.emplace({{paramName}}Query);
+        {{/required}}
+        {{#required}}
+        {{paramName}} = {{paramName}}Query;
+        {{/required}}
+      }
+    {{/isEnum}}
+    {{#isArray}}
+    // to do separate by , then decode and push_back...
+    if(!{{paramName}}Query.empty()){
       {{^required}}
-      {{paramName}}.emplace({{paramName}}Query);
+       
       {{/required}}
       {{#required}}
-      {{paramName}} = {{paramName}}Query;
+
       {{/required}}
     }
-    {{/isEnum}}
-
+    {{/isArray}}
+    /* to do 
     {{^isEnum}} 
     if(!{{paramName}}Query.empty()){
-       staticjson::ParseStatus result;
-       {{^required}}
+      staticjson::ParseStatus result;
+      {{^required}}
+        {{paramName}} = std::make_optional<{{dataType}}>();
         auto ret = (*{{paramName}}).decode({{paramName}}Query, result);
-         {{/required}}
-           {{#required}}
+      {{/required}}
+      {{#required}}
         auto ret = {{paramName}}.decode({{paramName}}Query, result);
-         {{/required}}
-        std::cout << "validation report is :" << ret.second << std::endl;
-        std::cout << "parse result: " << (int)ret.first << std::endl;
-        //std::move({{paramName}}Query)    
+      {{/required}}
+      std::cout << "validation report is :" << ret.second << std::endl;
+      std::cout << "parse result: " << (int)ret.first << std::endl;  
     }
-    
     {{/isEnum}}
-      {{/isPrimitiveType}}
+    */
+    {{/isPrimitiveType}}
     {{/queryParams}}
-    {{/hasQueryParams}}
+  {{/hasQueryParams}}
     
-    {{#hasHeaderParams}}
+  {{#hasHeaderParams}}
     // Getting the header params
     {{#headerParams}}
     std::string {{paramName}};
     if(requestIn.header().count("{{baseName}}"))
     {
-      {{paramName}} = requestIn.header()["{{baseName}}"].value;
+      {{paramName}} = (requestIn.header().find("{{baseName}}")->second).value;
     }
     {{/headerParams}}
-    {{/hasHeaderParams}}
-    
+  {{/hasHeaderParams}}
 
-    {{#hasHeaderParams}}
-    // Getting the header params
-    {{#headerParams}}
-    std::string {{paramName}};
-    if(requestIn.header().count("{{baseName}}"))
-    {
-      {{paramName}} = requestIn.header()["{{baseName}}"].value;
-    }
-    {{/headerParams}}
-    {{/hasHeaderParams}}
-
-
-{{#vendorExtensions}}
-{{#formParams}}
-{{#-first}}
-                       // Form parameters  
-                       // to do  do the multipart decode here()       
-{{/-first}}
-      //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
-                                {{{dataType}}} {{{paramName}}} ;//= getBianryPart<{{{dataType}}}>("{{{paramName}}}", );
-{{#-last}}
-
-        // end of Form parameter
-
-{{/-last}}
-{{/formParams}}
-{{/vendorExtensions}}
-
-
-
-
-
+  {{#vendorExtensions}}
+    {{#formParams}}
+    {{#-first}}
+    // Form parameters  
+    // to do  do the multipart decode here()       
+    {{/-first}}
+    //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+    {{{dataType}}} {{{paramName}}} ;//= getBianryPart<{{{dataType}}}>("{{{paramName}}}", );
+    {{#-last}}
+    // end of Form parameter
+    {{/-last}}
+    {{/formParams}}
+  {{/vendorExtensions}}
 
     try {
-    {{#hasBodyParam}}
-    {{#bodyParam}}
-    {{^isPrimitiveType}}
-      // nlohmann::json::parse(requestIn.body()).get_to({{paramName}});
-      staticjson::ParseStatus result;
-      {{paramName}}.decode(requestIn.body(),result);
-    {{/isPrimitiveType}}
-    {{#isPrimitiveType}}
-      {{paramName}} = requestIn.body();
-    {{/isPrimitiveType}}
-    {{/bodyParam}}
-    {{/hasBodyParam}}
+      {{#hasBodyParam}}
+        {{#bodyParam}}
+        {{^isPrimitiveType}}
+          staticjson::ParseStatus result;
+          {{paramName}}.decode(requestIn.body(),result);
+        {{/isPrimitiveType}}
+        {{#isPrimitiveType}}
+          {{paramName}} = requestIn.body();
+        {{/isPrimitiveType}}
+        {{/bodyParam}}
+      {{/hasBodyParam}}
+
       {{#allParams}}
-    /// <param name="{{paramName}}">{{description}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
-    {{/allParams}}
-      {{classname}}Impl::{{operationIdSnakeCase}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}requestIn,responseIn);
-   
+      /// <param name="{{paramName}}">{{description}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+      {{/allParams}}
+      if( {{operationIdSnakeCase}}_handler_cb_){
+      {{operationIdSnakeCase}}_handler_cb_({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}
+      {{/allParams}}{{#hasParams}}, {{/hasParams}}requestIn,responseIn);
+      }
     }  catch (std::exception &e) {
-        responseIn.write_head(500);
-        responseIn.end(e.what());
-        //send a 500 error
-        return;
+      responseIn.write_head(500);
+      responseIn.end(e.what());
+      //send a 500 error
+      return;
     }
-    }
-    {{/operation}}
-   
- 
+  }
 
-
-
+  {{classname}}::{{operationIdSnakeCase}}_handler_cb {{classname}}::{{operationIdSnakeCase}}_handler_cb_;
+{{/operation}}
 {{#apiNamespaceDeclarations}}
 }
 {{/apiNamespaceDeclarations}}
-
-
-
 {{/operations}}

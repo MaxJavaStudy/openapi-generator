@@ -20,7 +20,7 @@ import static org.openapitools.codegen.utils.StringUtils.underscore;
 
 public class CppNghttp2ServerServerCodegen extends AbstractCppCodegen {
     public static final String PROJECT_NAME = "nghttp2Server";
-    protected String implFolder = "impl";
+   
 
     private static final String uuidType = "uuid::Uuid";
     private static final String bytesType = "swagger::ByteArray";
@@ -64,18 +64,18 @@ public class CppNghttp2ServerServerCodegen extends AbstractCppCodegen {
 
         apiTemplateFiles.put("api-header.mustache", ".h");
         apiTemplateFiles.put("api-source.mustache", ".cpp");
-        apiTemplateFiles.put("api-impl-header.mustache", ".h");
-        // apiTemplateFiles.put("api-impl-source.mustache", ".cpp");
+   
 
         embeddedTemplateDir = templateDir = "cppnghttp2server-server";
 
         cliOptions.clear();
 
         supportingFiles
-                .add(new SupportingFile("main-api-server.mustache", "", modelNamePrefix + "main-api-server.cpp"));
+                .add(new SupportingFile("main-api-class.mustache", "", modelNamePrefix + "mainClass.hpp"));
         supportingFiles.add(new SupportingFile("cmake.mustache", "", "CMakeLists.txt"));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
-        supportingFiles.add(new SupportingFile("jsonParser.mustache", "", "jsonParser.hpp"));
+       // supportingFiles.add(new SupportingFile("jsonParser.mustache", "", "jsonParser.hpp"));
+        supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
 
         LOGGER.info("Using get/set-based model template");
         modelTemplateFiles.put("model-header.mustache", ".h");
@@ -106,6 +106,7 @@ public class CppNghttp2ServerServerCodegen extends AbstractCppCodegen {
         importMapping.put("std::map", "#include <map>");
         importMapping.put("std::string", "#include <string>");
         importMapping.put("std::optional", "#include <optional>");
+        importMapping.put("std::array", "#include <array>");
         // importMapping.put("Object", "#include \"Object.h\"");
 
         // namespace
@@ -292,15 +293,7 @@ public class CppNghttp2ServerServerCodegen extends AbstractCppCodegen {
     public String apiFilename(String templateName, String tag) {
         String result = super.apiFilename(templateName, tag);
 
-        if (templateName.endsWith("impl-header.mustache")) {
-            int ix = result.lastIndexOf(File.separatorChar);
-            result = result.substring(0, ix) + result.substring(ix, result.length() - 2) + "Impl.h";
-            result = result.replace(apiFileFolder(), implFileFolder());
-        } else if (templateName.endsWith("impl-source.mustache")) {
-            int ix = result.lastIndexOf(File.separatorChar);
-            result = result.substring(0, ix) + result.substring(ix, result.length() - 4) + "Impl.cpp";
-            result = result.replace(apiFileFolder(), implFileFolder());
-        }
+ 
         return result;
     }
 
@@ -321,9 +314,7 @@ public class CppNghttp2ServerServerCodegen extends AbstractCppCodegen {
         return (outputFolder + "/api").replace("/", File.separator);
     }
 
-    private String implFileFolder() {
-        return (outputFolder + "/" + implFolder).replace("/", File.separator);
-    }
+   
 
     @Override
     public String toApiFilename(String name) {

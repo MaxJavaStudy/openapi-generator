@@ -1,0 +1,143 @@
+{{>licenseInfo}}
+
+
+#include <vector>
+#include <signal.h>
+#include <unistd.h>
+#include "jsonParser.hpp"
+#include <nghttp2/asio_http2_server.h>
+#include <nghttp2/http_router.hpp>
+{{#apiInfo}}{{#apis}}{{#operations}}
+#include "{{classname}}.h"{{/operations}}{{/apis}}{{/apiInfo}}
+
+   {{#models}}{{#model}}
+#include "{{classname}}.h"
+    {{/model}}
+    {{/models}}
+
+#include <nghttp2/asio_http2_server.h>
+
+
+const std::string CFG_HOST = "host";
+const std::string CFG_PORT = "port";
+const std::string CFG_PRIVATE_KEY = "privateKeyFile";
+const std::string CFG_CERT = "certFile";
+const std::string CFG_SCHEMA_LOC = "apiSchemaPath";
+const std::string CFG_THREAD_NUM = "threadNum";
+
+using namespace {{apiNamespace}};
+class {{appName}}
+{
+public:
+  bool init(std::map<std::string, std::string> config)
+  {
+    bool ret= true;
+    std::string addr;
+    std::string port;
+    std::string privateKeyFile;
+    std::string certFile;
+    std::string apiSchemaBasePath;
+
+    std::string threadNumber="1";
+
+    if (config.count(CFG_HOST))
+    {
+      addr = config.at(CFG_HOST);
+    }
+    if (config.count(CFG_PORT))
+    {
+      port = config.at(CFG_PORT);
+    }
+    if (config.count(CFG_PRIVATE_KEY))
+    {
+      privateKeyFile = config.at(CFG_PRIVATE_KEY);
+    }
+    if (config.count(CFG_CERT))
+    {
+      certFile = config.at(CFG_CERT);
+    }
+    if (config.count(CFG_SCHEMA_LOC))
+    {
+      apiSchemaBasePath = config.at(CFG_SCHEMA_LOC);
+    }
+    if (config.count(CFG_THREAD_NUM))
+    {
+      threadNumber = config.at(CFG_THREAD_NUM);
+    }
+
+    unsigned long tNum = 1;
+    try{
+      tNum = std::stoul(threadNumber);
+    }
+      catch (std::exception &e)
+    {
+    }
+
+    server.num_threads(tNum);
+
+    ret &= loadAPISchema(apiSchemaBasePath);
+     ret &=registerServerHandler();
+    ret &= setUpConnection(addr, port, privateKeyFile, certFile);
+    return ret;
+    
+  }
+  bool setUpConnection(std::string addr, std::string port, std::string privateKeyFile, std::string certFile)
+  {
+    try
+    {
+      boost::system::error_code ec;
+      if (!privateKeyFile.empty() && !certFile.empty())
+      {
+        boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
+        tls.use_private_key_file(privateKeyFile, boost::asio::ssl::context::pem);
+        tls.use_certificate_chain_file(certFile);
+
+        configure_tls_context_easy(ec, tls);
+
+        if (server.listen_and_serve(ec, tls, addr, port))
+        {
+          std::cerr << "error: " << ec.message() << std::endl;
+        }
+      }
+      else
+      {
+        if (server.listen_and_serve(ec, addr, port))
+        {
+          std::cerr << "error: " << ec.message() << std::endl;
+        }
+      }
+      return true;
+    }
+    catch (std::exception &e)
+    {
+      std::cerr << "exception: " << e.what() << "\n";
+      return false;
+    }
+  }
+
+bool loadAPISchema(std::string apiSchemaBasePath)
+{
+
+    {{#models}}{{#model}}
+    jsonParser::jsonParser<{{classname}}>::loadApiSchema(apiSchemaBasePath+"{{classname}}.json");
+    {{/model}}
+    {{/models}}
+}
+
+bool registerServerHandler(){
+    // register server handler
+    {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+    server.register_handler<{{httpMethod}}>("{{basePathWithoutHost}}{{{vendorExtensions.x-codegen-nghttp2-path}}}", &{{classname}}::{{operationIdSnakeCase}}_handler);
+    {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+
+}
+http2 server;
+};
+
+
+
+
+
+
+
+

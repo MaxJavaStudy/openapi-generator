@@ -1,3 +1,0 @@
-/root/openapi-generator/server_out_29673_414/build/CMakeFiles/rebuild_cache.dir
-/root/openapi-generator/server_out_29673_414/build/CMakeFiles/edit_cache.dir
-/root/openapi-generator/server_out_29673_414/build/CMakeFiles/api-server.dir

@@ -1,6 +1,12 @@
 cmake_minimum_required (VERSION 3.2)
 
-project(api-server)
+project({{appName}})
+
+
+SET(M_VERSION_MAJOR 1)
+SET(M_VERSION_MINOR 0)
+SET(M_VERSION_PATCH 0)
+SET(M_VERSION ${M_VERSION_MAJOR}.${M_VERSION_MINOR}.${M_VERSION_PATCH})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pg -g3" )
 
@@ -9,16 +15,31 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/model"
     "${CMAKE_CURRENT_SOURCE_DIR}/api"
-    "${CMAKE_CURRENT_SOURCE_DIR}/impl"
+    "/usr/local/include/jsonParser"
 )
 
 file(GLOB SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/api/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/impl/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/model/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SRCS} )
+
+ADD_LIBRARY (${PROJECT_NAME} SHARED ${SRCS})
+
 
 target_link_libraries(${PROJECT_NAME}  pthread jsonParser boost_system boost_thread nghttp2_asio nghttp2 ssl crypto)
+
+
+# Install lib to /usr/local/lib by default
+INSTALL(
+		TARGETS ${PROJECT_NAME}
+		LIBRARY
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+# Install header files to /usr/local/include/${PROJECT_NAME}
+INSTALL(
+		DIRECTORY ${PROJECT_SOURCE_DIR}/ ${PROJECT_SOURCE_DIR}/api/ ${PROJECT_SOURCE_DIR}/model/
+		DESTINATION include/${PROJECT_NAME}
+)

@@ -37,159 +37,131 @@ public:
     {{classname}}();
     virtual ~{{classname}}() {}
  
-
-
-
 private:
    
-
     {{#operation}}
+
     static void {{operationIdSnakeCase}}_handler(request &requestIn,  response responseIn)
     {
-           {{#hasPathParams}}
-    // Getting the path params
-    {{#pathParams}}
-    //  //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
-    // openAPI type: {{#isNumeric}}number {{/isNumeric}}  {{#isInteger}}int {{/isInteger}}{{#isString}}string{{/isString}}
-    {{dataType}} {{paramName}};
+    {{#hasPathParams}}
+      // Getting the path params
+      {{#pathParams}}
+      //  //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+      // openAPI type: {{#isNumeric}}number {{/isNumeric}}  {{#isInteger}}int {{/isInteger}}{{#isString}}string{{/isString}}
+      {{dataType}} {{paramName}};
 
-    if(requestIn.param().count("{{paramName}}"))
-    {
-    {{^isContainer}}
-    {{#isPrimitiveType}}
-
-      
-      // to do : more rainy day consider?
-      {{#isInteger}}
-      // it is integer
-         {{paramName}} = std::stoi(requestIn.param()["{{paramName}}"]);
-      {{/isInteger}}
-      {{#isLong}}
-      // it is long
-       {{paramName}} = std::stol(requestIn.param()["{{paramName}}"]);
-      {{/isLong}}
-
-    {{#isFloat}}
-    // it is float
-       {{paramName}} = std::stof(requestIn.param()["{{paramName}}"]);
-      {{/isFloat}}
-
-
+      if(requestIn.param().count("{{paramName}}"))
+      {
+      {{^isContainer}}
+        {
+          {#isPrimitiveType}}
+          // to do : more rainy day consider?
+          {{#isInteger}}
+          // it is integer
+            {{paramName}} = std::stoi(requestIn.param()["{{paramName}}"]);
+          {{/isInteger}}
+          {{#isLong}}
+          // it is long
+          {{paramName}} = std::stol(requestIn.param()["{{paramName}}"]);
+          {{/isLong}}
+          {{#isFloat}}
+          // it is float
+          {{paramName}} = std::stof(requestIn.param()["{{paramName}}"]);
+          {{/isFloat}}
           {{#isDouble}}
           // it is double
-       {{paramName}} = std::stod(requestIn.param()["{{paramName}}"]);
-      {{/isDouble}}
-
-   
-  
-    
-
-      {{#isString}}
-      // it is string
-        {{paramName}} = requestIn.param()["{{paramName}}"];
-       {{/isString}}
- {{/isPrimitiveType}}
- {{/isContainer}}
-  
-
-    }
-    {{/pathParams}}
+          {{paramName}} = std::stod(requestIn.param()["{{paramName}}"]);
+          {{/isDouble}}
+          {{#isString}}
+          // it is string
+          {{paramName}} = requestIn.param()["{{paramName}}"];
+          {{/isString}}
+        {{/isPrimitiveType}}
+      {{/isContainer}}
+      }
+      {{/pathParams}}
     {{/hasPathParams}}
-    
+  
     {{#hasBodyParam}}
-
-     
-    
-    {{#bodyParam}}
-
-    // Getting the body param
-    // {{#isContainer}}container{{/isContainer}} {{#isPrimitiveType}}PrimitiveType{{/isPrimitiveType}} {{#isArray}}array{{/isArray}} {{#isMap}}map{{/isMap}}
-//<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
-
-    {{^isPrimitiveType}}{{^isContainer}}
-    {{baseType}} {{paramName}};{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}> {{paramName}};{{/isArray}}{{#isMap}}std::map<std::string, {{items.baseType}}> {{paramName}};{{/isMap}}{{/isPrimitiveType}}
-    {{#isPrimitiveType}}
-    {{dataType}} {{paramName}};
-
-    {{/isPrimitiveType}}
-    {{/bodyParam}}
+      {{#bodyParam}}
+      // Getting the body param
+      // {{#isContainer}}container{{/isContainer}} {{#isPrimitiveType}}PrimitiveType{{/isPrimitiveType}} {{#isArray}}array{{/isArray}} {{#isMap}}map{{/isMap}}
+      //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+      {{^isPrimitiveType}}{{^isContainer}}
+      {{baseType}} {{paramName}};{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}> {{paramName}};{{/isArray}}{{#isMap}}std::map<std::string, {{items.baseType}}> {{paramName}};{{/isMap}}{{/isPrimitiveType}}
+      {{#isPrimitiveType}}
+      {{dataType}} {{paramName}};
+      {{/isPrimitiveType}}
+      {{/bodyParam}}
     {{/hasBodyParam}}
     
-    
     {{#hasQueryParams}}
-    // Getting the query params
-    {{#queryParams}}
-    auto {{paramName}}Query =(getQueryMap::get(requestIn.uri().raw_query)).at("{{baseName}}");// requestIn.uri().get("{{baseName}}");
-   {{^required}}  std::optional<{{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}>{{/required}} {{#required}}  {{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}{{/required}}  {{paramName}};
+        // Getting the query params
+        {{#queryParams}}
+        auto {{paramName}}Query =(getQueryMap::get(requestIn.uri().raw_query)).at("{{baseName}}");// requestIn.uri().get("{{baseName}}");
+        {{^required}}  std::optional<{{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}>{{/required}} {{#required}}  {{^isContainer}}{{dataType}}{{/isContainer}}{{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}{{/required}}  {{paramName}};
+        //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+          
+          {{#isPrimitiveType}}
+          // PrimitiveType
+          if(!{{paramName}}Query.isEmpty()){
+            {{paramName}} = {{paramName}}Query;
+          }
+          {{/isPrimitiveType}}
 
+          {{#isEnum}}
+          // enum type
+          if(!{{paramName}}Query.isEmpty()){
+            {{paramName}} = {{paramName}}Query;
+          }
+          {{/isEnum}}
 
-//<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
-  
-    {{#isPrimitiveType}}
-    // PrimitiveType
-    if(!{{paramName}}Query.isEmpty()){
-      {{paramName}} = {{paramName}}Query;
-    }
-    {{/isPrimitiveType}}
-  
-    {{#isEnum}}
-    // enum type
-     if(!{{paramName}}Query.isEmpty()){
-      {{paramName}} = {{paramName}}Query;
-    }
-    {{/isEnum}}
-    {{#isString}}
-    // string type
-     if(!{{paramName}}Query.isEmpty()){
-      {{paramName}} = {{paramName}}Query;
-    }
-    {{/isString}}
-    {{^isEnum}} {{^isString}}
-    if(!{{paramName}}Query.isEmpty()){
-       staticjson::ParseStatus result;
-        auto ret = {{paramName}}.decode({{paramName}}Query, result);
-        std::cout << "validation report is :" << ret.second << std::endl;
-        std::cout << "parse result: " << (int)ret.first << std::endl;
-        //std::move({{paramName}}Query)    
-    }
-     {{/isString}}
-    {{/isEnum}}
-  
-    {{/queryParams}}
+            {{#isString}}
+            // string type
+            if(!{{paramName}}Query.isEmpty()){
+              {{paramName}} = {{paramName}}Query;
+            }
+            {{/isString}}
+
+            {{^isEnum}} {{^isString}}
+              if(!{{paramName}}Query.isEmpty()){
+                staticjson::ParseStatus result;
+                  auto ret = {{paramName}}.decode({{paramName}}Query, result);
+                  std::cout << "validation report is :" << ret.second << std::endl;
+                  std::cout << "parse result: " << (int)ret.first << std::endl;
+                  //std::move({{paramName}}Query)    
+              }
+            {{/isString}}
+          {{/isEnum}}
+      {{/queryParams}}
     {{/hasQueryParams}}
     
     {{#hasHeaderParams}}
-    // Getting the header params
-    {{#headerParams}}
-    std::string {{paramName}};
-    if(requestIn.header().count("{{baseName}}"))
-    {
-      {{paramName}} = requestIn.header()["{{baseName}}"].value;
-    }
-    {{/headerParams}}
+      // Getting the header params
+      {{#headerParams}}
+      std::string {{paramName}};
+      if(requestIn.header().count("{{baseName}}"))
+      {
+        {{paramName}} = requestIn.header()["{{baseName}}"].value;
+      }
+      {{/headerParams}}
     {{/hasHeaderParams}}
 
-
-{{#vendorExtensions}}
-{{#formParams}}
-{{#-first}}
-                       // Form parameters  
-                       // to do  do the multipart decode here()       
-{{/-first}}
-      //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
-                                {{{dataType}}} {{{paramName}}} ;//= getBianryPart<{{{dataType}}}>("{{{paramName}}}", );
-{{#-last}}
+    {{#vendorExtensions}}
+      {{#formParams}}
+        {{#-first}}
+        // Form parameters  
+        // to do  do the multipart decode here()       
+        {{/-first}}
+        //<param name="{{paramName}}">{{description}} parameter type {{{dataType}}} {{^required}}  (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}</param>
+                                        {{{dataType}}} {{{paramName}}} ;//= getBianryPart<{{{dataType}}}>("{{{paramName}}}", );
+        {{#-last}}
 
         // end of Form parameter
 
-{{/-last}}
-{{/formParams}}
-{{/vendorExtensions}}
-
-
-
-
-
+        {{/-last}}
+      {{/formParams}}
+    {{/vendorExtensions}}
 
     try {
     {{#hasBodyParam}}

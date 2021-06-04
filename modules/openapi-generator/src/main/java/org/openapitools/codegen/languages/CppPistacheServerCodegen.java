@@ -38,7 +38,6 @@ import static org.openapitools.codegen.utils.StringUtils.underscore;
 public class CppPistacheServerCodegen extends AbstractCppCodegen {
     private final Logger LOGGER = LoggerFactory.getLogger(CppPistacheServerCodegen.class);
 
-    protected String implFolder = "impl";
     protected boolean isAddExternalLibs = true;
     protected boolean isUseStructModel = false;
     public static final String OPTIONAL_EXTERNAL_LIB = "addExternalLibs";
@@ -97,8 +96,7 @@ public class CppPistacheServerCodegen extends AbstractCppCodegen {
 
         apiTemplateFiles.put("api-header.mustache", ".h");
         apiTemplateFiles.put("api-source.mustache", ".cpp");
-        apiTemplateFiles.put("api-impl-header.mustache", ".h");
-        apiTemplateFiles.put("api-impl-source.mustache", ".cpp");
+     
 
         embeddedTemplateDir = templateDir = "cpp-pistache-server";
 
@@ -321,15 +319,7 @@ public class CppPistacheServerCodegen extends AbstractCppCodegen {
     public String apiFilename(String templateName, String tag) {
         String result = super.apiFilename(templateName, tag);
 
-        if (templateName.endsWith("impl-header.mustache")) {
-            int ix = result.lastIndexOf(File.separatorChar);
-            result = result.substring(0, ix) + result.substring(ix, result.length() - 2) + "Impl.h";
-            result = result.replace(apiFileFolder(), implFileFolder());
-        } else if (templateName.endsWith("impl-source.mustache")) {
-            int ix = result.lastIndexOf(File.separatorChar);
-            result = result.substring(0, ix) + result.substring(ix, result.length() - 4) + "Impl.cpp";
-            result = result.replace(apiFileFolder(), implFileFolder());
-        }
+ 
         return result;
     }
 
@@ -424,9 +414,7 @@ public class CppPistacheServerCodegen extends AbstractCppCodegen {
         return (outputFolder + "/api").replace("/", File.separator);
     }
 
-    private String implFileFolder() {
-        return (outputFolder + "/" + implFolder).replace("/", File.separator);
-    }
+  
 
     /**
      * Optional - OpenAPI type conversion. This is used to map OpenAPI types in

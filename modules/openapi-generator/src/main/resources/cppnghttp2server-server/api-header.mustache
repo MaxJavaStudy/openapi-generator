@@ -9,13 +9,12 @@
 #define {{classname}}_H_
 
 {{{defaultInclude}}}
-#include "jsonParser.hpp"
+#include "jsonParser/jsonParser.hpp"
 
 #include <nghttp2/asio_http2_server.h>
 
 
 
-#include "{{classname}}Impl.h"
 
 using namespace nghttp2::asio_http2::server;
 
@@ -40,6 +39,17 @@ public:
 
     {{#operation}}
     static void {{operationIdSnakeCase}}_handler(request &requestIn,  response& responseIn);
+      
+  
+    {{!to do not array case?}} 
+    using {{operationIdSnakeCase}}_handler_cb = std::function<void({{#allParams}}const {{#isArray}}std::vector<{{items.baseType}}>{{/isArray}}{{^isArray}}{{{dataType}}}{{/isArray}}{{#required}} &{{/required}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}request &requestIn,response &responseIn)>;
+      
+   static void register_{{operationIdSnakeCase}}_handler(  {{operationIdSnakeCase}}_handler_cb cb)
+          {
+            {{operationIdSnakeCase}}_handler_cb_ = cb;
+          }
+
+      static {{operationIdSnakeCase}}_handler_cb {{operationIdSnakeCase}}_handler_cb_;
       {{/operation}}
    
  

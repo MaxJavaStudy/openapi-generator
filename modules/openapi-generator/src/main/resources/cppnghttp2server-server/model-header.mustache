@@ -11,7 +11,7 @@
 {{{defaultInclude}}}
 {{#imports}}{{{this}}}
 {{/imports}}
-#include "jsonParser.hpp"
+#include "jsonParser/jsonParser.hpp"
 #include <type_traits>
 	
 {{#modelNamespaceDeclarations}}
@@ -36,10 +36,10 @@ public:
     };
     virtual ~{{classname}}(){};
 
-      std::pair<jsonRet, std::string> decode(const std::string &jsonBuffer,
+      std::pair<::jsonParser::jsonRet, std::string> decode(const std::string &jsonBuffer,
                                                staticjson::ParseStatus &result)
                                                {
-                                                   std::pair<jsonRet, std::string> ret;
+                                                   std::pair<::jsonParser::jsonRet, std::string> ret;
                                                    m_{{name}} = jsonBuffer;
                                                    return ret;
                                                }
